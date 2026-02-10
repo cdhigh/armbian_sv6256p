@@ -342,8 +342,8 @@ static void ssv6xxx_set_80211_hw_capab(struct ssv_softc *sc)
         hw->wiphy->bands[INDEX_80211_BAND_5GHZ] =
             &sc->sbands[INDEX_80211_BAND_5GHZ];
     }
-    hw->max_rx_aggregation_subframes = sh->cfg.max_rx_aggr_size;
-    hw->max_tx_aggregation_subframes = 64;
+    hw->max_rx_aggregation_subframes = min(sh->cfg.max_rx_aggr_size, 32);
+    hw->max_tx_aggregation_subframes = 32;
     hw->sta_data_size = sizeof(struct ssv_sta_priv_data);
     hw->vif_data_size = sizeof(struct ssv_vif_priv_data);
     memcpy(sh->maddr[0].addr, &sh->cfg.maddr[0][0], ETH_ALEN);
@@ -1866,6 +1866,13 @@ static int tu_ssv6xxx_init_device(struct ssv_softc *sc, const char *name)
     if ((error = tu_ssv6xxx_init_hw(sc->sh)) != 0) {
         goto err_hw;
     }
+    
+    ieee80211_hw_set(sc->hw, CHANCTX_STA_CSA);
+    ieee80211_hw_set(sc->hw, TX_AMPDU_SETUP_IN_HW);
+    ieee80211_hw_set(sc->hw, CONNECTION_MONITOR);
+    ieee80211_hw_set(sc->hw, REPORTS_TX_ACK_STATUS);
+    sc->hw->queues = 4;
+
 #ifndef CONFIG_SSV6XXX_HW_DEBUG
     if ((error = ieee80211_register_hw(hw)) != 0) {
         dev_dbg(sh->sc->dev, KERN_ERR "Failed to register w. %d.", error);
@@ -1972,10 +1979,10 @@ static int tu_ssv6xxx_dev_probe(struct platform_device *pdev)
     struct ssv_softc *sc;
     struct ieee80211_hw *hw;
     int ret;
-    bool has_tx, has_start, has_stop, has_config, has_add_if, has_rm_if;
+    /*bool has_tx, has_start, has_stop, has_config, has_add_if, has_rm_if;
     bool has_conf_filter, has_wake_txq;
     bool has_add_chan, has_rm_chan, has_chg_chan, has_assign, has_unassign;
-    bool any_chanctx, all_chanctx, emulate_chanctx;
+    bool any_chanctx, all_chanctx, emulate_chanctx;*/
     if (!pdev->dev.platform_data) {
         dev_err(&pdev->dev, "no platform data specified!");
         return -EINVAL;

@@ -4525,6 +4525,7 @@ out:
         .resume = ssv6xxx_resume,
 #endif
         .wake_tx_queue = ieee80211_handle_wake_tx_queue,
+        //.wake_tx_queue = NULL,
         /* Use mac80211 emulation for single-channel hardware */
         .add_chanctx = ieee80211_emulate_add_chanctx,
         .remove_chanctx = ieee80211_emulate_remove_chanctx,

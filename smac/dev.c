@@ -4463,20 +4463,40 @@ out:
         }
     }
 
-    // Simple implementations for assign/unassign_vif_chanctx (emulate versions don't exist in 6.12)
-    /*static int ssv6200_assign_vif_chanctx(struct ieee80211_hw *hw,
+    // Custom implementations of all 5 channel context callbacks
+    // Required for kernel 6.12 - must provide ALL 5 or NONE
+    /*static int ssv6200_add_chanctx(struct ieee80211_hw *hw,
+                                   struct ieee80211_chanctx_conf *ctx) {
+        // Single-channel driver - just accept the channel
+        return 0;
+    }
+
+    static void ssv6200_remove_chanctx(struct ieee80211_hw *hw,
+                                       struct ieee80211_chanctx_conf *ctx) {
+        // Nothing to clean up for single-channel
+    }
+
+    static void ssv6200_change_chanctx(struct ieee80211_hw *hw,
+                                       struct ieee80211_chanctx_conf *ctx,
+                                       u32 changed) {
+        // Single-channel driver - no dynamic changes needed
+    }
+
+    static int ssv6200_assign_vif_chanctx(struct ieee80211_hw *hw,
                                           struct ieee80211_vif *vif,
                                           struct ieee80211_bss_conf *link_conf,
                                           struct ieee80211_chanctx_conf *ctx) {
-        return 0;  // Success - driver doesn't need special handling
+        // VIF uses the single channel - always succeeds
+        return 0;
     }
 
     static void ssv6200_unassign_vif_chanctx(struct ieee80211_hw *hw,
                                               struct ieee80211_vif *vif,
                                               struct ieee80211_bss_conf *link_conf,
                                               struct ieee80211_chanctx_conf *ctx) {
-        // No special handling needed
+        // Nothing to clean up
     }*/
+
 
 
     struct ieee80211_ops ssv6200_ops = {
@@ -4505,6 +4525,7 @@ out:
         .resume = ssv6xxx_resume,
 #endif
         .wake_tx_queue = ieee80211_handle_wake_tx_queue,
+        /* Use mac80211 emulation for single-channel hardware */
         .add_chanctx = ieee80211_emulate_add_chanctx,
         .remove_chanctx = ieee80211_emulate_remove_chanctx,
         .change_chanctx = ieee80211_emulate_change_chanctx,

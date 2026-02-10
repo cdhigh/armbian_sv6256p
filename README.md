@@ -65,20 +65,14 @@ sudo dnf install kernel-devel kernel-headers gcc make
 
 ```bash
 git clone https://github.com/cdhigh/armbian_sv6256p.git
-cd ssv6x5x-driver
+cd armbian_sv6256p
 ```
 
 ### 2. Build the Driver
 
 ```bash
-make
+make ARCH=arm64 KSRC=/lib/modules/$(uname -r)/build
 ```
-
-The build process will:
-- Parse configuration from `ssv6x5x-wifi.cfg`
-- Generate configuration headers
-- Compile all source files
-- Create `ssv6x5x.ko` kernel module
 
 ### 3. Verify Build
 
@@ -163,6 +157,59 @@ sudo iw dev wlan0 scan | grep SSID
 nmcli device wifi connect "YourSSID" password "YourPassword"
 or
 nmtui
+```
+
+
+## Auto-Loading Configuration (3 Methods)
+
+### Method 1: modules-load.d (Simplest) ✅
+
+```bash
+sudo bash -c 'echo "ssv6x5x" > /etc/modules-load.d/ssv6x5x.conf'
+sudo reboot
+```
+
+### Method 2: udev Rules (Most Reliable) ✅
+
+Create a udev rule:
+
+```bash
+sudo nano /etc/udev/rules.d/80-ssv6x5x.rules
+```
+
+Add this content:
+
+```
+# SSV6256P SDIO WiFi (Vendor:Device = 0x3030:0x3030)
+ACTION=="add", SUBSYSTEM=="sdio", ATTR{vendor}=="0x3030", ATTR{device}=="0x3030", RUN+="/sbin/modprobe ssv6x5x"
+```
+
+Reload udev:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+sudo reboot
+```
+
+### Method 3: /etc/modules (Traditional) ✅
+
+Edit the modules file:
+
+```bash
+sudo nano /etc/modules
+```
+
+Add at the end of the file:
+
+```
+ssv6x5x
+```
+
+Save and reboot:
+
+```bash
+sudo reboot
 ```
 
 # Credits

@@ -313,7 +313,7 @@ static void ssv6xxx_set_80211_hw_capab(struct ssv_softc *sc)
         hw->wiphy->iface_combinations = ssv6xxx_iface_combinations_p2p;
         hw->wiphy->n_iface_combinations = ARRAY_SIZE(ssv6xxx_iface_combinations_p2p);
     }
-    hw->wiphy->flags |= WIPHY_FLAG_HAS_REMAIN_ON_CHANNEL;
+    /* ROC ops are not implemented; do not advertise remain-on-channel */
     if (sh->cfg.hw_caps & SSV6200_HW_CAP_AP) {
         hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_AP);
         hw->wiphy->flags |= WIPHY_FLAG_AP_UAPSD;
@@ -660,13 +660,13 @@ static int tu_ssv6xxx_init_softc(struct ssv_softc *sc)
 #ifdef CONFIG_SSV6XXX_DEBUGFS
     sc->max_tx_skb_q_len = 0;
 #endif
-    sc->tx_task = kthread_run(ssv6xxx_tx_task, sc, "ssv6xxx_tx_task");
+    sc->tx_task = NULL;
     sc->tx_q_empty = false;
     skb_queue_head_init(&sc->tx_done_q);
     init_waitqueue_head(&sc->rx_wait_q);
     sc->rx_wait_q_woken = 0;
     skb_queue_head_init(&sc->rx_skb_q);
-    sc->rx_task = kthread_run(ssv6xxx_rx_task, sc, "ssv6xxx_rx_task");
+    sc->rx_task = NULL;
     if (SSV_NEED_SW_CIPHER(sc->sh)) {
         ssv6xxx_preload_sw_cipher();
     }
@@ -1871,6 +1871,21 @@ static int tu_ssv6xxx_init_device(struct ssv_softc *sc, const char *name)
         dev_dbg(sh->sc->dev, KERN_ERR "Failed to register w. %d.", error);
         goto err_hw;
     }
+
+    /* Start TX/RX threads only after successful hw registration */
+    sc->tx_task = kthread_run(ssv6xxx_tx_task, sc, "ssv6xxx_tx_task");
+    if (IS_ERR(sc->tx_task)) {
+        error = PTR_ERR(sc->tx_task);
+        sc->tx_task = NULL;
+        goto err_hw;
+    }
+
+    sc->rx_task = kthread_run(ssv6xxx_rx_task, sc, "ssv6xxx_rx_task");
+    if (IS_ERR(sc->rx_task)) {
+        error = PTR_ERR(sc->rx_task);
+        sc->rx_task = NULL;
+        goto err_hw;
+    }
 #endif
 #ifndef CONFIG_SSV6XXX_HW_DEBUG
     ssv_init_cli(dev_name(&hw->wiphy->dev), &sc->cmd_data);
@@ -1957,6 +1972,10 @@ static int tu_ssv6xxx_dev_probe(struct platform_device *pdev)
     struct ssv_softc *sc;
     struct ieee80211_hw *hw;
     int ret;
+    bool has_tx, has_start, has_stop, has_config, has_add_if, has_rm_if;
+    bool has_conf_filter, has_wake_txq;
+    bool has_add_chan, has_rm_chan, has_chg_chan, has_assign, has_unassign;
+    bool any_chanctx, all_chanctx, emulate_chanctx;
     if (!pdev->dev.platform_data) {
         dev_err(&pdev->dev, "no platform data specified!");
         return -EINVAL;

@@ -38,6 +38,8 @@
 
 # Debug files
 *.dSYM/
+Debug/
+Release/
 *.su
 *.idb
 *.pdb
@@ -50,6 +52,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-# debug information files
-*.dwo

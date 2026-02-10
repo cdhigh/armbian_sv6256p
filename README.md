@@ -101,13 +101,6 @@ sudo depmod -a
 sudo modprobe ssv6x5x
 ```
 
-### Permanent Installation
-
-```bash
-sudo make install
-sudo depmod -a
-```
-
 ### Firmware Installation
 
 The driver requires a configuration file. Ensure it exists:

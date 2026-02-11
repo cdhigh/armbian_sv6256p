@@ -13,14 +13,6 @@ The SSV6256P is a dual-band WiFi chipset from iComm Semiconductor, commonly foun
 
 This repository contains a fully functional port of the SSV6256P driver to Linux kernel 6.12+, with all necessary API adaptations and bug fixes.
 
-## 🔌 Hardware Support
-
-This driver supports the following SSV wireless chipsets:
-
-- **SSV6006C0** (Primary target - SSV6256P)
-- SSV6006A/B/D (Turismo family)
-- SSV6051 (Cabrio family)
-
 ### Tested Hardware
 
 - **SoC**: Allwinner H616 (ARM Cortex-A53)
@@ -61,61 +53,21 @@ sudo dnf install kernel-devel kernel-headers gcc make
 
 ## 🔨 Compilation
 
-### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/cdhigh/armbian_sv6256p.git
 cd armbian_sv6256p
-```
-
-### 2. Build the Driver
-
-```bash
 make ARCH=arm64 KSRC=/lib/modules/$(uname -r)/build
-```
-
-### 3. Verify Build
-
-Check for the compiled module:
-
-```bash
 ls -lh ssv6x5x.ko
 ```
 
 ## 📥 Installation
 
-### Temporary Installation (Testing)
-
-Load the driver without permanent installation:
-
-```bash
-sudo modprobe cfg80211
-sudo insmod ssv6x5x.ko
-```
-
-Or use modprobe:
-
-```bash
-sudo cp ssv6x5x.ko /lib/modules/$(uname -r)/kernel/drivers/net/wireless/
-sudo depmod -a
-sudo modprobe ssv6x5x
-```
-
-### Firmware Installation
-
-The driver requires a configuration file. Ensure it exists:
-
 ```bash
 sudo cp ./ssv6x5x-wifi.cfg /lib/firmware/
 sudo cp ./ssv6x5x-sw.bin /lib/firmware/
-```
-
-### Auto-load on Boot
-
-Create a module configuration file:
-
-```bash
-sudo bash -c 'echo "ssv6x5x" > /etc/modules-load.d/ssv6x5x.conf'
+sudo cp ./ssv6x5x.ko /lib/modules/$(uname -r)/kernel/drivers/net/wireless/
+sudo depmod -a
+sudo modprobe ssv6x5x
 ```
 
 ## 🚀 Usage

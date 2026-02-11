@@ -17,8 +17,16 @@ MODDESTDIR = /lib/modules/$(shell uname -r)/kernel/drivers/net/wireless
 
 EXTRA_CFLAGS := -I$(KBUILD_TOP) -I$(KBUILD_TOP)/include
 
-# Disable ftrace to prevent "Misaligned patch-site" warnings
-CFLAGS_REMOVE_*.o := -pg
+# Completely disable ftrace for this out-of-tree module
+# This prevents "Misaligned patch-site" warnings on ARM64
+EXTRA_CFLAGS += -falign-functions=8
+EXTRA_CFLAGS += -DCC_USING_FENTRY
+EXTRA_CFLAGS += -DDISABLE_BRANCH_PROFILING
+
+# Remove all ftrace-related compiler flags
+CFLAGS_REMOVE_*.o := -pg -mfentry
+CFLAGS_REMOVE_*.o += -mrecord-mcount
+CFLAGS_REMOVE_*.o += -mnop-mcount
 
 DEF_PARSER_H = $(KBUILD_TOP)/include/ssv_conf_parser.h
 $(shell env ccflags="$(ccflags-y)" $(KBUILD_TOP)/parser-conf.sh $(DEF_PARSER_H))

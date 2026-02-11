@@ -19,7 +19,16 @@ ccflags-y += -Werror
 # Enable -g to help debug. Deassembly from .o to .S would help to track to 
 # the problomatic line from call stack dump.
 #ccflags-y += -DDEBUG -g
-ccflags-y += -Os
+
+# Use -O2 instead of -Os to prevent conflicts with function alignment
+# -Os (optimize for size) can override -falign-functions=8 causing ftrace issues
+ccflags-y += -O2
+ccflags-y += -falign-functions=8
+
+# Disable patchable function entry to prevent ftrace instrumentation
+# Use =0 to set zero patchable NOPs at function entry
+ccflags-y += -fpatchable-function-entry=0
+ccflags-y += -fno-optimize-sibling-calls
 
 #########################################################
 # option enable shal

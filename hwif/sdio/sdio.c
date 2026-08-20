@@ -36,6 +36,7 @@
 #endif
 #define LOW_SPEED_SDIO_CLOCK (25000000)
 #define HIGH_SPEED_SDIO_CLOCK (50000000)
+extern int ssv6xxx_sdio_slow_clock;
 #define MAX_RX_FRAME_SIZE 0x900
 #define MAX_REG_RETRY_CNT (3)
 #define SSV_VENDOR_ID 0x3030
@@ -1383,6 +1384,8 @@ static void ssv6xxx_low_sdio_clk(struct sdio_func *func)
 static void ssv6xxx_high_sdio_clk(struct sdio_func *func)
 {
 #ifndef SDIO_USE_SLOW_CLOCK
+    if (ssv6xxx_sdio_slow_clock)
+        return;
     ssv6xxx_set_sdio_clk(func, HIGH_SPEED_SDIO_CLOCK);
 #endif
 }

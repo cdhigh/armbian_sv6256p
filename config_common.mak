@@ -42,7 +42,10 @@ ccflags-y += -DSSV_SUPPORT_SSV6006
 # smac\firmware\include\config.h & compiler firmware
 ############################################################
 #ccflags-y += -DCONFIG_SSV_CABRIO_A
-ccflags-y += -DSDIO_USE_SLOW_CLOCK
+# SDIO clock: default raises to 50MHz after firmware load.
+# Boxes with EILSEQ (-84) CRC errors (e.g. Amlogic Meson) should opt-in at runtime:
+#   echo "options ssv6x5x ssv6xxx_sdio_slow_clock=1" > /etc/modprobe.d/ssv6x5x.conf
+#ccflags-y += -DSDIO_USE_SLOW_CLOCK
 ccflags-y += -DCONFIG_SSV_CABRIO_E
 
 #CONFIG_SSV_SUPPORT_BTCX=y

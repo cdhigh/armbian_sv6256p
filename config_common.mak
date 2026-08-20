@@ -14,7 +14,7 @@ ccflags-y += -D__CHECK_ENDIAN__
 ###########################################################################
 # Compiler options                                                        #
 ###########################################################################
-ccflags-y += -Werror
+#ccflags-y += -Werror
 
 # Enable -g to help debug. Deassembly from .o to .S would help to track to 
 # the problomatic line from call stack dump.
@@ -42,6 +42,9 @@ ccflags-y += -DSSV_SUPPORT_SSV6006
 # smac\firmware\include\config.h & compiler firmware
 ############################################################
 #ccflags-y += -DCONFIG_SSV_CABRIO_A
+# SDIO clock: default raises to 50MHz after firmware load.
+# Boxes with EILSEQ (-84) CRC errors (e.g. Amlogic Meson) should opt-in at runtime:
+#   echo "options ssv6x5x ssv6xxx_sdio_slow_clock=1" > /etc/modprobe.d/ssv6x5x.conf
 #ccflags-y += -DSDIO_USE_SLOW_CLOCK
 ccflags-y += -DCONFIG_SSV_CABRIO_E
 
@@ -107,13 +110,13 @@ ccflags-y += -DUSE_GENERIC_DECI_TBL
 ## should not enable again here. 
 
 # Use crypto in SSV driver.
-ccflags-y += -DUSE_LOCAL_CRYPTO
-ccflags-y += -DUSE_LOCAL_WEP_CRYPTO
-ccflags-y += -DUSE_LOCAL_TKIP_CRYPTO
-ccflags-y += -DUSE_LOCAL_CCMP_CRYPTO
-ccflags-y += -DUSE_LOCAL_SMS4_CRYPTO
-ccflags-y += -DCONFIG_SSV_WAPI
-ccflags-y += -DHAS_CRYPTO_LOCK
+#ccflags-y += -DUSE_LOCAL_CRYPTO
+#ccflags-y += -DUSE_LOCAL_WEP_CRYPTO
+#ccflags-y += -DUSE_LOCAL_TKIP_CRYPTO
+#ccflags-y += -DUSE_LOCAL_CCMP_CRYPTO
+#ccflags-y += -DUSE_LOCAL_SMS4_CRYPTO
+#ccflags-y += -DCONFIG_SSV_WAPI
+#ccflags-y += -DHAS_CRYPTO_LOCK
 
 #ccflags-y += -DCONFIG_IRQ_DEBUG_COUNT
 #ccflags-y += -DCONFIG_SSV6XXX_DEBUGFS

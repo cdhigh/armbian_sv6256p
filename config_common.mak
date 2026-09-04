@@ -25,9 +25,11 @@ ccflags-y += -D__CHECK_ENDIAN__
 ccflags-y += -O2
 ccflags-y += -falign-functions=8
 
-# Disable patchable function entry to prevent ftrace instrumentation
-# Use =0 to set zero patchable NOPs at function entry
-ccflags-y += -fpatchable-function-entry=0
+# NOTE: do not force -fpatchable-function-entry here. On arm64 the kernel
+# builds modules with -fpatchable-function-entry=4,2; overriding it with =0
+# leaves the module without a __patchable_function_entries section, and the
+# module loader then rejects it with "Invalid module format".
+# ccflags-y += -fpatchable-function-entry=0
 ccflags-y += -fno-optimize-sibling-calls
 
 #########################################################

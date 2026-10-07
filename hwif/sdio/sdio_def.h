@@ -122,4 +122,9 @@ struct sdio_scatter_req {
 #define SDIO_READY_FLAG_BUSY_DELAY 5
 #define PLATFORM_DEF_DMA_ALIGN_SIZE 32
 #define PLATFORM_DMA_ALIGNED __attribute__ ((aligned(PLATFORM_DEF_DMA_ALIGN_SIZE)))
+
+#ifndef CONFIG_MMC_DISALLOW_STACK
+#define CONFIG_MMC_DISALLOW_STACK
+#endif
+
 #endif

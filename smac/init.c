@@ -274,6 +274,11 @@ static void ssv6xxx_set_80211_hw_capab(struct ssv_softc *sc)
     hw->wiphy->n_cipher_suites = ARRAY_SIZE(ssv6xxx_cipher_suites);
 #endif
     ieee80211_hw_set(hw, SIGNAL_DBM);
+    /* PMF (802.11w): without this mac80211 does not advertise the BIP
+     * ciphers and cfg80211 rejects the IGTK ("key setting validation
+     * failed"). set_key returns -EOPNOTSUPP for AES-CMAC, so mac80211
+     * handles BIP in software. */
+    ieee80211_hw_set(hw, MFP_CAPABLE);
 #ifdef CONFIG_SSV_SUPPORT_ANDROID
 #endif
     SSV_RC_ALGORITHM(sc);
